@@ -46,7 +46,7 @@ pub const HEAP_AUX_OFFSET_CONSTRUCTOR_RETURN_DATA: u64 =
     8 * (era_compiler_common::BYTE_LENGTH_FIELD as u64);
 
 /// The number of the extra ABI data arguments.
-pub const EXTRA_ABI_DATA_SIZE: usize = 10;
+pub const EXTRA_ABI_DATA_SIZE: usize = 0;
 
 /// The `create` method deployer signature.
 pub static DEPLOYER_SIGNATURE_CREATE: &str = "create(bytes32,bytes32,bytes)";

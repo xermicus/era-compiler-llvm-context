@@ -106,6 +106,8 @@ pub fn raw_far<'ctx, D>(
 where
     D: Dependency + Clone,
 {
+    todo!();
+    /*
     let status_code_result_pointer = context.build_alloca(
         context.field_type(),
         "system_far_call_result_status_code_pointer",
@@ -180,6 +182,7 @@ where
     let status_code_result =
         context.build_load(status_code_result_pointer, "system_call_status_code");
     Ok(status_code_result)
+    */
 }
 
 ///

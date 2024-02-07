@@ -85,11 +85,11 @@ where
     );
     result.push(abi_data);
     result.push(address.as_basic_value_enum());
-    result.extend(
-        pad_extra_abi_data(context, extra_abi_data)
-            .into_iter()
-            .map(|value| value.as_basic_value_enum()),
-    );
+    //result.extend(
+    //    pad_extra_abi_data(context, extra_abi_data)
+    //        .into_iter()
+    //        .map(|value| value.as_basic_value_enum()),
+    //);
     if let Some(mimic) = mimic {
         result.push(mimic.as_basic_value_enum());
     }
