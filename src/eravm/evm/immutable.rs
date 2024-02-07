@@ -50,20 +50,7 @@ where
             Ok(immutable_value)
         }
         Some(CodeType::Runtime) => {
-            let code_address = context
-                .build_call(
-                    context.intrinsics().code_source,
-                    &[],
-                    "immutable_code_address",
-                )
-                .expect("Always exists")
-                .into_int_value();
-            crate::eravm::evm::call::request(
-                context,
-                context.field_const(zkevm_opcode_defs::ADDRESS_IMMUTABLE_SIMULATOR.into()),
-                "getImmutable(address,uint256)",
-                vec![code_address, index],
-            )
+            todo!()
         }
     }
 }

@@ -20,37 +20,6 @@ pub struct Intrinsics<'ctx> {
     pub memory_copy: FunctionDeclaration<'ctx>,
     /// The memory copy from a generic page.
     pub memory_copy_from_generic: FunctionDeclaration<'ctx>,
-
-    /// The event emitting.
-    pub event: FunctionDeclaration<'ctx>,
-    /// The L1 interactor.
-    pub to_l1: FunctionDeclaration<'ctx>,
-    /// The precompile call.
-    pub precompile: FunctionDeclaration<'ctx>,
-    /// The near call with ABI data.
-    pub near_call: FunctionDeclaration<'ctx>,
-    /// The current contract's address.
-    pub address: FunctionDeclaration<'ctx>,
-    /// The caller's address.
-    pub caller: FunctionDeclaration<'ctx>,
-    /// The address where the current contract's code is deployed.
-    pub code_source: FunctionDeclaration<'ctx>,
-    /// The other data: FunctionDeclaration<'ctx>, including the block information and VM state.
-    pub meta: FunctionDeclaration<'ctx>,
-    /// The remaining amount of gas.
-    pub gas_left: FunctionDeclaration<'ctx>,
-    /// The abstract `u128` getter.
-    pub get_u128: FunctionDeclaration<'ctx>,
-    /// The abstract `u128` setter.
-    pub set_u128: FunctionDeclaration<'ctx>,
-    /// The public data price setter.
-    pub set_pubdata_price: FunctionDeclaration<'ctx>,
-    /// The transaction counter incrementor.
-    pub increment_tx_counter: FunctionDeclaration<'ctx>,
-    /// The pointer shrink.
-    pub pointer_shrink: FunctionDeclaration<'ctx>,
-    /// The pointer pack.
-    pub pointer_pack: FunctionDeclaration<'ctx>,
 }
 
 impl<'ctx> Intrinsics<'ctx> {
@@ -62,51 +31,6 @@ impl<'ctx> Intrinsics<'ctx> {
 
     /// The corresponding intrinsic function name.
     pub const FUNCTION_MEMORY_COPY_FROM_GENERIC: &'static str = "llvm.memcpy.p3.p1.i256";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_EVENT: &'static str = "llvm.eravm.event";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_L1: &'static str = "llvm.eravm.tol1";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_PRECOMPILE: &'static str = "llvm.eravm.precompile";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_NEAR_CALL: &'static str = "llvm.eravm.nearcall";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_ADDRESS: &'static str = "llvm.eravm.this";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_CALLER: &'static str = "llvm.eravm.caller";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_CODE_SOURCE: &'static str = "llvm.eravm.codesource";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_META: &'static str = "llvm.eravm.meta";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_GAS_LEFT: &'static str = "llvm.eravm.gasleft";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_GET_U128: &'static str = "llvm.eravm.getu128";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_SET_U128: &'static str = "llvm.eravm.setu128";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_SET_PUBDATA_PRICE: &'static str = "llvm.eravm.setpubdataprice";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_INCREMENT_TX_COUNTER: &'static str = "llvm.eravm.inctx";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_POINTER_SHRINK: &'static str = "llvm.eravm.ptr.shrink";
-
-    /// The corresponding intrinsic function name.
-    pub const FUNCTION_POINTER_PACK: &'static str = "llvm.eravm.ptr.pack";
 
     ///
     /// A shortcut constructor.
@@ -158,155 +82,10 @@ impl<'ctx> Intrinsics<'ctx> {
             ),
         );
 
-        let event = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_EVENT,
-            void_type.fn_type(
-                &[
-                    field_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                ],
-                false,
-            ),
-        );
-        let to_l1 = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_L1,
-            void_type.fn_type(
-                &[
-                    field_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                ],
-                false,
-            ),
-        );
-        let precompile = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_PRECOMPILE,
-            field_type.fn_type(
-                &[
-                    field_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                ],
-                false,
-            ),
-        );
-        let near_call = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_NEAR_CALL,
-            field_type.fn_type(
-                &[
-                    stack_field_pointer_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                ],
-                true,
-            ),
-        );
-        let address = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_ADDRESS,
-            field_type.fn_type(&[], false),
-        );
-        let caller = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_CALLER,
-            field_type.fn_type(&[], false),
-        );
-        let code_source = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_CODE_SOURCE,
-            field_type.fn_type(&[], false),
-        );
-        let meta = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_META,
-            field_type.fn_type(&[], false),
-        );
-        let gas_left = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_GAS_LEFT,
-            field_type.fn_type(&[], false),
-        );
-        let get_u128 = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_GET_U128,
-            field_type.fn_type(&[], false),
-        );
-        let set_u128 = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_SET_U128,
-            void_type.fn_type(&[field_type.as_basic_type_enum().into()], false),
-        );
-        let set_pubdata_price = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_SET_PUBDATA_PRICE,
-            void_type.fn_type(&[field_type.as_basic_type_enum().into()], false),
-        );
-        let increment_tx_counter = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_INCREMENT_TX_COUNTER,
-            void_type.fn_type(&[], false),
-        );
-        let pointer_shrink = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_POINTER_SHRINK,
-            generic_byte_pointer_type.fn_type(
-                &[
-                    generic_byte_pointer_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                ],
-                false,
-            ),
-        );
-        let pointer_pack = Self::declare(
-            llvm,
-            module,
-            Self::FUNCTION_POINTER_PACK,
-            generic_byte_pointer_type.fn_type(
-                &[
-                    generic_byte_pointer_type.as_basic_type_enum().into(),
-                    field_type.as_basic_type_enum().into(),
-                ],
-                false,
-            ),
-        );
-
         Self {
             trap,
             memory_copy,
             memory_copy_from_generic,
-
-            event,
-            to_l1,
-            precompile,
-            near_call,
-            address,
-            caller,
-            code_source,
-            meta,
-            gas_left,
-            get_u128,
-            set_u128,
-            set_pubdata_price,
-            increment_tx_counter,
-            pointer_shrink,
-            pointer_pack,
         }
     }
 

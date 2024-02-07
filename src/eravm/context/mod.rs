@@ -22,10 +22,12 @@ mod tests;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::path::Path;
 use std::rc::Rc;
 
 use inkwell::types::BasicType;
 use inkwell::values::BasicValue;
+use inkwell::values::CallSiteValue;
 
 use crate::eravm::DebugConfig;
 use crate::eravm::Dependency;
@@ -170,7 +172,7 @@ where
     ) -> anyhow::Result<Build> {
         let module_clone = self.module.clone();
 
-        let target_machine = TargetMachine::new(Target::EraVM, self.optimizer.settings())?;
+        let target_machine = TargetMachine::new(Target::PVM, self.optimizer.settings())?;
         target_machine.set_target_data(self.module());
 
         if let Some(ref debug_config) = self.debug_config {
@@ -788,89 +790,7 @@ where
         arguments: Vec<inkwell::values::BasicValueEnum<'ctx>>,
         name: &str,
     ) -> Option<inkwell::values::BasicValueEnum<'ctx>> {
-        let join_block = self.append_basic_block("near_call_join_block");
-
-        let return_pointer = if let Some(r#type) = function.r#type.get_return_type() {
-            let pointer = self.build_alloca(r#type, "near_call_return_pointer");
-            self.build_store(pointer, r#type.const_zero());
-            Some(pointer)
-        } else {
-            None
-        };
-
-        let call_site_value = if let Some(handler) = self
-            .functions
-            .get(Function::ZKSYNC_NEAR_CALL_ABI_EXCEPTION_HANDLER)
-        {
-            let success_block = self.append_basic_block("near_call_success_block");
-            let catch_block = self.append_basic_block("near_call_catch_block");
-            let current_block = self.basic_block();
-
-            self.set_basic_block(catch_block);
-            let landing_pad_type = self.structure_type(&[
-                self.byte_type()
-                    .ptr_type(AddressSpace::Stack.into())
-                    .as_basic_type_enum(),
-                self.integer_type(era_compiler_common::BIT_LENGTH_X32)
-                    .as_basic_type_enum(),
-            ]);
-            self.builder.build_landing_pad(
-                landing_pad_type,
-                self.llvm_runtime.personality.value,
-                &[self
-                    .byte_type()
-                    .ptr_type(AddressSpace::Stack.into())
-                    .const_zero()
-                    .as_basic_value_enum()],
-                false,
-                "near_call_catch_landing",
-            );
-            self.build_call(handler.borrow().declaration(), &[], "near_call_catch_call");
-            self.build_unconditional_branch(join_block);
-
-            self.set_basic_block(current_block);
-            let call_site_value = self.builder.build_indirect_invoke(
-                self.intrinsics.near_call.r#type,
-                self.intrinsics
-                    .near_call
-                    .value
-                    .as_global_value()
-                    .as_pointer_value(),
-                arguments.as_slice(),
-                success_block,
-                catch_block,
-                name,
-            );
-            self.modify_call_site_value(
-                arguments.as_slice(),
-                call_site_value,
-                self.intrinsics.near_call,
-            );
-            self.set_basic_block(success_block);
-            call_site_value.try_as_basic_value().left()
-        } else {
-            self.build_call(self.intrinsics.near_call, arguments.as_slice(), name)
-        };
-
-        if let (Some(return_pointer), Some(mut return_value)) = (return_pointer, call_site_value) {
-            if let Some(return_type) = function.r#type.get_return_type() {
-                if return_type.is_pointer_type() {
-                    return_value = self
-                        .builder()
-                        .build_int_to_ptr(
-                            return_value.into_int_value(),
-                            return_type.into_pointer_type(),
-                            format!("{name}_near_call_return_pointer_casted").as_str(),
-                        )
-                        .as_basic_value_enum();
-                }
-            }
-            self.build_store(return_pointer, return_value);
-        }
-        self.build_unconditional_branch(join_block);
-
-        self.set_basic_block(join_block);
-        return_pointer.map(|pointer| self.build_load(pointer, "near_call_result"))
+        unimplemented!()
     }
 
     ///
@@ -1203,10 +1123,12 @@ where
     ///
     pub fn modify_call_site_value(
         &self,
-        arguments: &[inkwell::values::BasicValueEnum<'ctx>],
-        call_site_value: inkwell::values::CallSiteValue<'ctx>,
-        function: FunctionDeclaration<'ctx>,
+        _arguments: &[inkwell::values::BasicValueEnum<'ctx>],
+        _call_site_value: inkwell::values::CallSiteValue<'ctx>,
+        _function: FunctionDeclaration<'ctx>,
     ) {
+        // FIXME: This invalides the module
+        /*
         for (index, argument) in arguments.iter().enumerate() {
             if argument.is_pointer_value() {
                 call_site_value.set_alignment_attribute(
@@ -1311,6 +1233,7 @@ where
                     .create_enum_attribute(Attribute::NoUndef as u32, 0),
             );
         }
+        */
     }
 
     ///

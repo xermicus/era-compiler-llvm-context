@@ -113,21 +113,7 @@ pub fn active_ptr_shrink_assign<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    let active_pointer = context.get_global_value(crate::eravm::GLOBAL_ACTIVE_POINTER)?;
-    let active_pointer_shrunken = context
-        .build_call(
-            context.intrinsics().pointer_shrink,
-            &[active_pointer, offset.as_basic_value_enum()],
-            "active_pointer_shrunken",
-        )
-        .expect("Always returns a pointer");
-    context.set_global(
-        crate::eravm::GLOBAL_ACTIVE_POINTER,
-        context.byte_type().ptr_type(AddressSpace::Generic.into()),
-        AddressSpace::Stack,
-        active_pointer_shrunken,
-    );
-    Ok(context.field_const(1).as_basic_value_enum())
+    unimplemented!()
 }
 
 ///
@@ -140,21 +126,7 @@ pub fn active_ptr_pack_assign<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    let active_pointer = context.get_global_value(crate::eravm::GLOBAL_ACTIVE_POINTER)?;
-    let active_pointer_packed = context
-        .build_call(
-            context.intrinsics().pointer_pack,
-            &[active_pointer, data.as_basic_value_enum()],
-            "active_pointer_packed",
-        )
-        .expect("Always returns a pointer");
-    context.set_global(
-        crate::eravm::GLOBAL_ACTIVE_POINTER,
-        context.byte_type().ptr_type(AddressSpace::Generic.into()),
-        AddressSpace::Stack,
-        active_pointer_packed,
-    );
-    Ok(context.field_const(1).as_basic_value_enum())
+    unimplemented!()
 }
 
 ///

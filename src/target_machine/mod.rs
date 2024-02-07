@@ -24,13 +24,10 @@ pub struct TargetMachine {
 
 impl TargetMachine {
     /// The LLVM target name.
-    pub const VM_TARGET_NAME: &'static str = "eravm";
+    pub const VM_TARGET_NAME: &'static str = "riscv32";
 
     /// The LLVM target triple.
-    pub const VM_TARGET_TRIPLE: &'static str = "eravm-unknown-unknown";
-
-    /// The actual production VM name.
-    pub const VM_PRODUCTION_NAME: &'static str = "EraVM";
+    pub const VM_TARGET_TRIPLE: &'static str = "riscv32-unknown-unknown-elf";
 
     ///
     /// A shortcut constructor.
@@ -50,10 +47,10 @@ impl TargetMachine {
             .ok_or_else(|| anyhow::anyhow!("LLVM target machine `{}` not found", target.name()))?
             .create_target_machine(
                 &inkwell::targets::TargetTriple::create(target.triple()),
-                "",
-                "",
+                "generic-rv32",
+                "+e,+m",
                 optimizer_settings.level_back_end,
-                inkwell::targets::RelocMode::Default,
+                inkwell::targets::RelocMode::PIC,
                 inkwell::targets::CodeModel::Default,
             )
             .ok_or_else(|| {
@@ -86,12 +83,9 @@ impl TargetMachine {
         module: &inkwell::module::Module,
     ) -> Result<inkwell::memory_buffer::MemoryBuffer, inkwell::support::LLVMString> {
         match self.target {
-            Target::EraVM => self
+            Target::PVM => self
                 .target_machine
                 .write_to_memory_buffer(module, inkwell::targets::FileType::Assembly),
-            Target::EVM => self
-                .target_machine
-                .write_to_memory_buffer(module, inkwell::targets::FileType::Object),
         }
     }
 
@@ -107,12 +101,10 @@ impl TargetMachine {
         pass_builder_options.set_verify_each(self.optimizer_settings.is_verify_each_enabled);
         pass_builder_options.set_debug_logging(self.optimizer_settings.is_debug_logging_enabled);
 
-        if let Target::EraVM = self.target {
-            pass_builder_options.set_loop_unrolling(
-                self.optimizer_settings.level_middle_end_size == OptimizerSettingsSizeLevel::Zero,
-            );
-            pass_builder_options.set_merge_functions(true);
-        }
+        pass_builder_options.set_loop_unrolling(
+            self.optimizer_settings.level_middle_end_size == OptimizerSettingsSizeLevel::Zero,
+        );
+        pass_builder_options.set_merge_functions(true);
 
         module.run_passes(passes, &self.target_machine, pass_builder_options)
     }

@@ -19,57 +19,7 @@ pub fn to_l1<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    let join_block = context.append_basic_block("contract_call_toL1_join_block");
-
-    let contract_call_tol1_is_first_block =
-        context.append_basic_block("contract_call_toL1_is_first_block");
-    let contract_call_tol1_is_not_first_block =
-        context.append_basic_block("contract_call_toL1_is_not_first_block");
-
-    let is_first_equals_zero = context.builder().build_int_compare(
-        inkwell::IntPredicate::EQ,
-        is_first,
-        context.field_const(0),
-        "contract_call_toL1_is_first_equals_zero",
-    );
-    context.build_conditional_branch(
-        is_first_equals_zero,
-        contract_call_tol1_is_not_first_block,
-        contract_call_tol1_is_first_block,
-    );
-
-    {
-        context.set_basic_block(contract_call_tol1_is_not_first_block);
-        let is_first = context.field_const(0);
-        context.build_call(
-            context.intrinsics().to_l1,
-            &[
-                in_0.as_basic_value_enum(),
-                in_1.as_basic_value_enum(),
-                is_first.as_basic_value_enum(),
-            ],
-            "contract_call_simulation_tol1",
-        );
-        context.build_unconditional_branch(join_block);
-    }
-
-    {
-        context.set_basic_block(contract_call_tol1_is_first_block);
-        let is_first = context.field_const(1);
-        context.build_call(
-            context.intrinsics().to_l1,
-            &[
-                in_0.as_basic_value_enum(),
-                in_1.as_basic_value_enum(),
-                is_first.as_basic_value_enum(),
-            ],
-            "contract_call_simulation_tol1",
-        );
-        context.build_unconditional_branch(join_block);
-    }
-
-    context.set_basic_block(join_block);
-    Ok(context.field_const(1).as_basic_value_enum())
+    unimplemented!()
 }
 
 ///
@@ -81,14 +31,7 @@ pub fn code_source<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    let result = context
-        .build_call(
-            context.intrinsics().code_source,
-            &[],
-            "contract_call_simulation_code_source",
-        )
-        .expect("Always exists");
-    Ok(result)
+    todo!()
 }
 
 ///
@@ -102,14 +45,7 @@ pub fn precompile<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    let result = context
-        .build_call(
-            context.intrinsics().precompile,
-            &[in_0.as_basic_value_enum(), gas_left.as_basic_value_enum()],
-            "contract_call_simulation_precompile",
-        )
-        .expect("Always exists");
-    Ok(result)
+    todo!()
 }
 
 ///
@@ -121,14 +57,7 @@ pub fn meta<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    let result = context
-        .build_call(
-            context.intrinsics().meta,
-            &[],
-            "contract_call_simulation_meta",
-        )
-        .expect("Always exists");
-    Ok(result)
+    unimplemented!()
 }
 
 ///
@@ -141,12 +70,7 @@ pub fn set_context_value<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    context.build_call(
-        context.intrinsics().set_u128,
-        &[value.as_basic_value_enum()],
-        "contract_call_simulation_set_context_value",
-    );
-    Ok(context.field_const(1).as_basic_value_enum())
+    unimplemented!()
 }
 
 ///
@@ -159,12 +83,7 @@ pub fn set_pubdata_price<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    context.build_call(
-        context.intrinsics().set_pubdata_price,
-        &[value.as_basic_value_enum()],
-        "contract_call_simulation_set_pubdata_price",
-    );
-    Ok(context.field_const(1).as_basic_value_enum())
+    unimplemented!()
 }
 
 ///
@@ -176,12 +95,7 @@ pub fn increment_tx_counter<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    context.build_call(
-        context.intrinsics().increment_tx_counter,
-        &[],
-        "contract_call_simulation_increment_tx_counter",
-    );
-    Ok(context.field_const(1).as_basic_value_enum())
+    unimplemented!()
 }
 
 ///
@@ -196,20 +110,5 @@ pub fn event<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    context.build_call(
-        context.intrinsics().event,
-        &[
-            operand_1.as_basic_value_enum(),
-            operand_2.as_basic_value_enum(),
-            context
-                .field_const(u64::from(is_initializer))
-                .as_basic_value_enum(),
-        ],
-        if is_initializer {
-            "event_initialize"
-        } else {
-            "event_write"
-        },
-    );
-    return Ok(context.field_const(1).as_basic_value_enum());
+    todo!()
 }

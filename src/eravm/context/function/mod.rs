@@ -139,11 +139,13 @@ impl<'ctx> Function<'ctx> {
     /// Sets the memory writer function attributes.
     ///
     pub fn set_attributes(
-        llvm: &'ctx inkwell::context::Context,
-        declaration: Declaration<'ctx>,
-        attributes: Vec<Attribute>,
-        force: bool,
+        _llvm: &'ctx inkwell::context::Context,
+        _declaration: Declaration<'ctx>,
+        _attributes: Vec<Attribute>,
+        _force: bool,
     ) {
+        // FIXME: This invalides the module
+        /*
         for attribute_kind in attributes.into_iter() {
             match attribute_kind {
                 attribute_kind @ Attribute::AlwaysInline if force => {
@@ -181,6 +183,7 @@ impl<'ctx> Function<'ctx> {
                 ),
             }
         }
+        */
     }
 
     ///

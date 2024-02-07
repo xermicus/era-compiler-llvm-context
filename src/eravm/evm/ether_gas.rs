@@ -2,6 +2,8 @@
 //! Translates the value and balance operations.
 //!
 
+use inkwell::values::BasicValue;
+
 use crate::eravm::context::Context;
 use crate::eravm::Dependency;
 
@@ -14,9 +16,7 @@ pub fn gas<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    Ok(context
-        .build_call(context.intrinsics().gas_left, &[], "gas_left")
-        .expect("Always exists"))
+    Ok(context.integer_const(256, 0).as_basic_value_enum())
 }
 
 ///
@@ -28,9 +28,7 @@ pub fn value<'ctx, D>(
 where
     D: Dependency + Clone,
 {
-    Ok(context
-        .build_call(context.intrinsics().get_u128, &[], "get_u128_value")
-        .expect("Always exists"))
+    Ok(context.integer_const(256, 0).as_basic_value_enum())
 }
 
 ///

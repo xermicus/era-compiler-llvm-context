@@ -77,7 +77,6 @@ pub use self::target_machine::TargetMachine;
 ///
 pub fn initialize_target(target: Target) {
     match target {
-        Target::EraVM => self::eravm::initialize_target(),
-        Target::EVM => todo!(),
+        Target::PVM => self::eravm::initialize_target(),
     }
 }

@@ -21,7 +21,7 @@ use self::context::Context;
 /// Initializes the EraVM target machine.
 ///
 pub fn initialize_target() {
-    inkwell::targets::Target::initialize_eravm(&inkwell::targets::InitializationConfig::default());
+    inkwell::targets::Target::initialize_riscv(&Default::default());
 }
 
 ///
@@ -30,13 +30,15 @@ pub fn initialize_target() {
 pub fn build_assembly_text(
     contract_path: &str,
     assembly_text: &str,
-    metadata_hash: Option<[u8; era_compiler_common::BYTE_LENGTH_FIELD]>,
+    _metadata_hash: Option<[u8; compiler_common::BYTE_LENGTH_FIELD]>,
     debug_config: Option<&DebugConfig>,
 ) -> anyhow::Result<Build> {
     if let Some(debug_config) = debug_config {
         debug_config.dump_assembly(contract_path, assembly_text)?;
     }
 
+    todo!("compile bitcode");
+    /*
     let mut assembly =
         zkevm_assembly::Assembly::from_string(assembly_text.to_owned(), metadata_hash).map_err(
             |error| {
@@ -87,6 +89,7 @@ pub fn build_assembly_text(
         bytecode,
         bytecode_hash,
     ))
+    */
 }
 
 ///
