@@ -108,6 +108,9 @@ where
             Some(inkwell::module::Linkage::External),
         )?;
 
+        context.declare_function("deploy")?;
+        context.declare_function("call")?;
+
         Ok(())
     }
 
@@ -220,6 +223,14 @@ where
 
         context.set_basic_block(context.current_function().borrow().return_block());
         context.build_return(Some(&context.field_const(0)));
+
+        context.set_current_function("deploy")?;
+        context.set_basic_block(context.current_function().borrow().return_block);
+        context.build_return(None);
+
+        context.set_current_function("call")?;
+        context.set_basic_block(context.current_function().borrow().return_block);
+        context.build_return(None);
 
         Ok(())
     }

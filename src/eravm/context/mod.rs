@@ -42,6 +42,7 @@ use self::build::Build;
 use self::code_type::CodeType;
 // use self::debug_info::DebugInfo;
 use self::evmla_data::EVMLAData;
+use self::function::declaration;
 use self::function::declaration::Declaration as FunctionDeclaration;
 use self::function::intrinsics::Intrinsics;
 use self::function::llvm_runtime::LLVMRuntime;
@@ -139,7 +140,11 @@ where
             .link_in_module(pallet_contracts_pvm_llapi::module(llvm, "polkavm_guest").unwrap())
             .unwrap();
 
-        // let debug_info = DebugInfo::new(&module);
+        let call_function = module.get_function("call").unwrap();
+        assert!(call_function.get_first_basic_block().is_none());
+
+        let deploy_function = module.get_function("deploy").unwrap();
+        assert!(deploy_function.get_first_basic_block().is_none());
 
         Self {
             llvm,
@@ -341,6 +346,31 @@ where
     ///
     pub fn llvm_runtime(&self) -> &LLVMRuntime<'ctx> {
         &self.llvm_runtime
+    }
+
+    pub fn declare_function(&mut self, name: &str) -> anyhow::Result<Rc<RefCell<Function<'ctx>>>> {
+        let function = self.module().get_function(name).ok_or_else(|| {
+            anyhow::anyhow!("Failed to activate an undeclared function `{}`", name)
+        })?;
+
+        let basic_block = self.llvm.append_basic_block(function, name);
+        let declaration = FunctionDeclaration::new(
+            self.function_type::<inkwell::types::BasicTypeEnum>(vec![], 0, false),
+            function,
+        );
+        let function = Function::new(
+            name.to_owned(),
+            declaration,
+            FunctionReturn::None,
+            basic_block,
+            basic_block,
+        );
+        Function::set_default_attributes(self.llvm, function.declaration(), &self.optimizer);
+
+        let function = Rc::new(RefCell::new(function));
+        self.functions.insert(name.to_string(), function.clone());
+
+        Ok(function)
     }
 
     ///
