@@ -135,6 +135,10 @@ where
         let builder = llvm.create_builder();
         let intrinsics = Intrinsics::new(llvm, &module);
         let llvm_runtime = LLVMRuntime::new(llvm, &module, &optimizer);
+        module
+            .link_in_module(pallet_contracts_pvm_llapi::module(llvm, "polkavm_guest").unwrap())
+            .unwrap();
+
         // let debug_info = DebugInfo::new(&module);
 
         Self {
@@ -208,6 +212,7 @@ where
 
         let buffer = target_machine
             .write_to_memory_buffer(self.module())
+            .map(|blob| revive_target_polkavm::linker::link(blob.as_slice()))
             .map_err(|error| {
                 anyhow::anyhow!(
                     "The contract `{}` assembly generating error: {}",

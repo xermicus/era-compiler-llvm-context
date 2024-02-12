@@ -77,7 +77,7 @@ impl TargetMachine {
         match self.target {
             Target::PVM => self
                 .target_machine
-                .write_to_memory_buffer(module, inkwell::targets::FileType::Assembly),
+                .write_to_memory_buffer(module, inkwell::targets::FileType::Object),
         }
     }
 
