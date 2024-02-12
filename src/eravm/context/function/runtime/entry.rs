@@ -116,7 +116,22 @@ where
 
     fn into_llvm(self, context: &mut Context<D>) -> anyhow::Result<()> {
         context.set_current_function(Runtime::FUNCTION_ENTRY)?;
+        context.set_basic_block(context.current_function().borrow().entry_block());
+        Self::initialize_globals(context)?;
+        let null = context
+            .llvm()
+            .custom_width_int_type(256)
+            .ptr_type(inkwell::AddressSpace::default())
+            .const_null();
+        let ptr = Pointer::new(context.byte_type(), AddressSpace::Generic, null);
+        context.write_abi_pointer(ptr, crate::eravm::GLOBAL_CALLDATA_POINTER);
+        context.write_abi_data_size(ptr, crate::eravm::GLOBAL_CALLDATA_SIZE);
+        context.build_unconditional_branch(context.current_function().borrow().return_block());
 
+        context.set_basic_block(context.current_function().borrow().return_block());
+        context.build_return(Some(&context.field_const(0)));
+
+        /*
         let deploy_code_call_block = context.append_basic_block("deploy_code_call_block");
         let runtime_code_call_block = context.append_basic_block("runtime_code_call_block");
 
@@ -213,16 +228,16 @@ where
             runtime_code_call_block,
         );
 
-        context.set_basic_block(deploy_code_call_block);
+        gontext.set_basic_block(deploy_code_call_block);
         context.build_invoke(deploy_code.borrow().declaration, &[], "deploy_code_call");
         context.build_unconditional_branch(context.current_function().borrow().return_block());
 
         context.set_basic_block(runtime_code_call_block);
         context.build_invoke(runtime_code.borrow().declaration, &[], "runtime_code_call");
         context.build_unconditional_branch(context.current_function().borrow().return_block());
-
         context.set_basic_block(context.current_function().borrow().return_block());
         context.build_return(Some(&context.field_const(0)));
+        */
 
         context.set_current_function("deploy")?;
         context.set_basic_block(context.current_function().borrow().return_block);

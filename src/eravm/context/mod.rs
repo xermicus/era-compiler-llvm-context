@@ -986,16 +986,27 @@ where
             zkevm_opcode_defs::RetForwardPageType::UseHeap
         };
 
-        self.build_call(
-            return_function,
-            &[
-                offset.as_basic_value_enum(),
-                length.as_basic_value_enum(),
-                self.field_const(return_forward_mode as u64)
-                    .as_basic_value_enum(),
-            ],
-            "exit_call",
-        );
+        self.builder()
+            .build_call(
+                self.module().get_function("seal_return").unwrap(),
+                &[
+                    self.integer_const(32, 0).into(),
+                    self.integer_const(32, 0).into(),
+                    self.integer_const(32, 0).into(),
+                ],
+                "seal_return",
+            )
+            .unwrap();
+        //self.build_call(
+        //    return_function,
+        //    &[
+        //        offset.as_basic_value_enum(),
+        //        length.as_basic_value_enum(),
+        //        self.field_const(return_forward_mode as u64)
+        //            .as_basic_value_enum(),
+        //    ],
+        //    "exit_call",
+        //);
         self.builder.build_unreachable().unwrap();
     }
 
