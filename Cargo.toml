@@ -23,8 +23,10 @@ hex = "0.4"
 sha2 = "0.10"
 sha3 = "0.10"
 md5 = "0.7"
-inkwell = { version = "0.2.0", default-features = false, features = ["llvm16-0", "no-libffi-linking", "target-riscv"] }
+inkwell = { version = "0.4.0", default-features = false, features = ["llvm16-0", "no-libffi-linking", "target-riscv"] }
 
 zkevm_opcode_defs = { git = "https://github.com/matter-labs/era-zkevm_opcode_defs", branch = "v1.4.1" }
 #zkevm-assembly = { git = "https://github.com/matter-labs/era-zkEVM-assembly", branch = "v1.4.1" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
+pallet-contracts-pvm-llapi = { git = "https://github.com/xermicus/pallet-contracts-pvm-llapi" }
+revive-target-polkavm = { path = "../revive/crates/target-polkavm" }

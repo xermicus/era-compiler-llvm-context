@@ -20,7 +20,7 @@ where
 {
     Ok(context
         .builder()
-        .build_or(operand_1, operand_2, "or_result")
+        .build_or(operand_1, operand_2, "or_result")?
         .as_basic_value_enum())
 }
 
@@ -37,7 +37,7 @@ where
 {
     Ok(context
         .builder()
-        .build_xor(operand_1, operand_2, "xor_result")
+        .build_xor(operand_1, operand_2, "xor_result")?
         .as_basic_value_enum())
 }
 
@@ -54,7 +54,7 @@ where
 {
     Ok(context
         .builder()
-        .build_and(operand_1, operand_2, "and_result")
+        .build_and(operand_1, operand_2, "and_result")?
         .as_basic_value_enum())
 }
 

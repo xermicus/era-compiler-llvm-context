@@ -59,12 +59,12 @@ where
                 context.field_const(immutable_values_size as u64),
                 context.field_const(2),
                 "immutables_size",
-            );
+            )?;
             let return_data_length = context.builder().build_int_add(
                 immutables_size,
                 context.field_const((era_compiler_common::BYTE_LENGTH_FIELD * 2) as u64),
                 "return_data_length",
-            );
+            )?;
 
             context.build_exit(
                 context.llvm_runtime().r#return,

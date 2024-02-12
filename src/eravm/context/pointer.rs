@@ -78,11 +78,14 @@ impl<'ctx> Pointer<'ctx> {
             "Stack pointers cannot be addressed"
         );
 
-        let value = context.builder.build_int_to_ptr(
-            offset,
-            context.byte_type().ptr_type(address_space.into()),
-            name,
-        );
+        let value = context
+            .builder
+            .build_int_to_ptr(
+                offset,
+                context.byte_type().ptr_type(address_space.into()),
+                name,
+            )
+            .unwrap();
         Self::new(r#type, address_space, value)
     }
 

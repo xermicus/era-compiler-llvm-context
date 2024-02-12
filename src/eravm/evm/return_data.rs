@@ -44,13 +44,13 @@ where
     let copy_slice_end =
         context
             .builder()
-            .build_int_add(source_offset, size, "return_data_copy_slice_end");
+            .build_int_add(source_offset, size, "return_data_copy_slice_end")?;
     let is_copy_out_of_bounds = context.builder().build_int_compare(
         inkwell::IntPredicate::UGT,
         copy_slice_end,
         return_data_size,
         "return_data_copy_is_out_of_bounds",
-    );
+    )?;
     context.build_conditional_branch(is_copy_out_of_bounds, error_block, join_block);
 
     context.set_basic_block(error_block);

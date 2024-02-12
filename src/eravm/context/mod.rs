@@ -558,7 +558,7 @@ where
         r#type: T,
         name: &str,
     ) -> Pointer<'ctx> {
-        let pointer = self.builder.build_alloca(r#type, name);
+        let pointer = self.builder.build_alloca(r#type, name).unwrap();
         self.basic_block()
             .get_last_instruction()
             .expect("Always exists")
@@ -577,7 +577,10 @@ where
         pointer: Pointer<'ctx>,
         name: &str,
     ) -> inkwell::values::BasicValueEnum<'ctx> {
-        let value = self.builder.build_load(pointer.r#type, pointer.value, name);
+        let value = self
+            .builder
+            .build_load(pointer.r#type, pointer.value, name)
+            .unwrap();
 
         let alignment = if AddressSpace::Stack == pointer.address_space {
             era_compiler_common::BYTE_LENGTH_FIELD
@@ -602,7 +605,7 @@ where
     where
         V: BasicValue<'ctx>,
     {
-        let instruction = self.builder.build_store(pointer.value, value);
+        let instruction = self.builder.build_store(pointer.value, value).unwrap();
 
         let alignment = if AddressSpace::Stack == pointer.address_space {
             era_compiler_common::BYTE_LENGTH_FIELD
@@ -631,6 +634,7 @@ where
         let value = unsafe {
             self.builder
                 .build_gep(pointer.r#type, pointer.value, indexes, name)
+                .unwrap()
         };
         Pointer::new(element_type, pointer.address_space, value)
     }
@@ -651,7 +655,8 @@ where
         }
 
         self.builder
-            .build_conditional_branch(comparison, then_block, else_block);
+            .build_conditional_branch(comparison, then_block, else_block)
+            .unwrap();
     }
 
     ///
@@ -667,7 +672,9 @@ where
             return;
         }
 
-        self.builder.build_unconditional_branch(destination_block);
+        self.builder
+            .build_unconditional_branch(destination_block)
+            .unwrap();
     }
 
     ///
@@ -684,12 +691,15 @@ where
             .copied()
             .map(inkwell::values::BasicMetadataValueEnum::from)
             .collect();
-        let call_site_value = self.builder.build_indirect_call(
-            function.r#type,
-            function.value.as_global_value().as_pointer_value(),
-            arguments_wrapped.as_slice(),
-            name,
-        );
+        let call_site_value = self
+            .builder
+            .build_indirect_call(
+                function.r#type,
+                function.value.as_global_value().as_pointer_value(),
+                arguments_wrapped.as_slice(),
+                name,
+            )
+            .unwrap();
         self.modify_call_site_value(arguments, call_site_value, function);
         call_site_value.try_as_basic_value().left()
     }
@@ -732,28 +742,33 @@ where
             self.integer_type(era_compiler_common::BIT_LENGTH_X32)
                 .as_basic_type_enum(),
         ]);
-        self.builder.build_landing_pad(
-            landing_pad_type,
-            self.llvm_runtime.personality.value,
-            &[self
-                .byte_type()
-                .ptr_type(AddressSpace::Stack.into())
-                .const_zero()
-                .as_basic_value_enum()],
-            false,
-            "invoke_catch_landing",
-        );
+        self.builder
+            .build_landing_pad(
+                landing_pad_type,
+                self.llvm_runtime.personality.value,
+                &[self
+                    .byte_type()
+                    .ptr_type(AddressSpace::Stack.into())
+                    .const_zero()
+                    .as_basic_value_enum()],
+                false,
+                "invoke_catch_landing",
+            )
+            .unwrap();
         crate::eravm::utils::throw(self);
 
         self.set_basic_block(current_block);
-        let call_site_value = self.builder.build_indirect_invoke(
-            function.r#type,
-            function.value.as_global_value().as_pointer_value(),
-            arguments,
-            success_block,
-            catch_block,
-            name,
-        );
+        let call_site_value = self
+            .builder
+            .build_indirect_invoke(
+                function.r#type,
+                function.value.as_global_value().as_pointer_value(),
+                arguments,
+                success_block,
+                catch_block,
+                name,
+            )
+            .unwrap();
         self.modify_call_site_value(arguments, call_site_value, function);
 
         self.set_basic_block(success_block);
@@ -769,6 +784,7 @@ where
                             return_type.into_pointer_type(),
                             format!("{name}_invoke_return_pointer_casted").as_str(),
                         )
+                        .unwrap()
                         .as_basic_value_enum();
                 }
             }
@@ -806,17 +822,20 @@ where
         size: inkwell::values::IntValue<'ctx>,
         name: &str,
     ) {
-        let call_site_value = self.builder.build_indirect_call(
-            function.r#type,
-            function.value.as_global_value().as_pointer_value(),
-            &[
-                destination.value.as_basic_value_enum().into(),
-                source.value.as_basic_value_enum().into(),
-                size.as_basic_value_enum().into(),
-                self.bool_type().const_zero().as_basic_value_enum().into(),
-            ],
-            name,
-        );
+        let call_site_value = self
+            .builder
+            .build_indirect_call(
+                function.r#type,
+                function.value.as_global_value().as_pointer_value(),
+                &[
+                    destination.value.as_basic_value_enum().into(),
+                    source.value.as_basic_value_enum().into(),
+                    size.as_basic_value_enum().into(),
+                    self.bool_type().const_zero().as_basic_value_enum().into(),
+                ],
+                name,
+            )
+            .unwrap();
 
         call_site_value.set_alignment_attribute(inkwell::attributes::AttributeLoc::Param(0), 1);
         call_site_value.set_alignment_attribute(inkwell::attributes::AttributeLoc::Param(1), 1);
@@ -836,28 +855,40 @@ where
         size: inkwell::values::IntValue<'ctx>,
         name: &str,
     ) {
-        let pointer_casted = self.builder.build_ptr_to_int(
-            source.value,
-            self.field_type(),
-            format!("{name}_pointer_casted").as_str(),
-        );
-        let return_data_size_shifted = self.builder.build_right_shift(
-            pointer_casted,
-            self.field_const((era_compiler_common::BIT_LENGTH_X32 * 3) as u64),
-            false,
-            format!("{name}_return_data_size_shifted").as_str(),
-        );
-        let return_data_size_truncated = self.builder.build_and(
-            return_data_size_shifted,
-            self.field_const(u32::MAX as u64),
-            format!("{name}_return_data_size_truncated").as_str(),
-        );
-        let is_return_data_size_lesser = self.builder.build_int_compare(
-            inkwell::IntPredicate::ULT,
-            return_data_size_truncated,
-            size,
-            format!("{name}_is_return_data_size_lesser").as_str(),
-        );
+        let pointer_casted = self
+            .builder
+            .build_ptr_to_int(
+                source.value,
+                self.field_type(),
+                format!("{name}_pointer_casted").as_str(),
+            )
+            .unwrap();
+        let return_data_size_shifted = self
+            .builder
+            .build_right_shift(
+                pointer_casted,
+                self.field_const((era_compiler_common::BIT_LENGTH_X32 * 3) as u64),
+                false,
+                format!("{name}_return_data_size_shifted").as_str(),
+            )
+            .unwrap();
+        let return_data_size_truncated = self
+            .builder
+            .build_and(
+                return_data_size_shifted,
+                self.field_const(u32::MAX as u64),
+                format!("{name}_return_data_size_truncated").as_str(),
+            )
+            .unwrap();
+        let is_return_data_size_lesser = self
+            .builder
+            .build_int_compare(
+                inkwell::IntPredicate::ULT,
+                return_data_size_truncated,
+                size,
+                format!("{name}_is_return_data_size_lesser").as_str(),
+            )
+            .unwrap();
         let min_size = self
             .builder
             .build_select(
@@ -866,6 +897,7 @@ where
                 size,
                 format!("{name}_min_size").as_str(),
             )
+            .unwrap()
             .into_int_value();
 
         self.build_memcpy(function, destination, source, min_size, name)
@@ -881,7 +913,7 @@ where
             return;
         }
 
-        self.builder.build_return(value);
+        self.builder.build_return(value).unwrap();
     }
 
     ///
@@ -894,7 +926,7 @@ where
             return;
         }
 
-        self.builder.build_unreachable();
+        self.builder.build_unreachable().unwrap();
     }
 
     ///
@@ -929,7 +961,7 @@ where
             ],
             "exit_call",
         );
-        self.builder.build_unreachable();
+        self.builder.build_unreachable().unwrap();
     }
 
     ///
@@ -948,20 +980,27 @@ where
     /// Writes the ABI data size to the global variable.
     ///
     pub fn write_abi_data_size(&mut self, pointer: Pointer<'ctx>, global_name: &str) {
-        let abi_pointer_value =
-            self.builder()
-                .build_ptr_to_int(pointer.value, self.field_type(), "abi_pointer_value");
-        let abi_pointer_value_shifted = self.builder().build_right_shift(
-            abi_pointer_value,
-            self.field_const((era_compiler_common::BIT_LENGTH_X32 * 3) as u64),
-            false,
-            "abi_pointer_value_shifted",
-        );
-        let abi_length_value = self.builder().build_and(
-            abi_pointer_value_shifted,
-            self.field_const(u32::MAX as u64),
-            "abi_length_value",
-        );
+        let abi_pointer_value = self
+            .builder()
+            .build_ptr_to_int(pointer.value, self.field_type(), "abi_pointer_value")
+            .unwrap();
+        let abi_pointer_value_shifted = self
+            .builder()
+            .build_right_shift(
+                abi_pointer_value,
+                self.field_const((era_compiler_common::BIT_LENGTH_X32 * 3) as u64),
+                false,
+                "abi_pointer_value_shifted",
+            )
+            .unwrap();
+        let abi_length_value = self
+            .builder()
+            .build_and(
+                abi_pointer_value_shifted,
+                self.field_const(u32::MAX as u64),
+                "abi_length_value",
+            )
+            .unwrap();
         self.set_global(
             global_name,
             self.field_type(),

@@ -143,7 +143,7 @@ where
             input_offset,
             context.field_const(era_compiler_common::BYTE_LENGTH_X32 as u64),
             "deployer_call_salt_offset",
-        );
+        )?;
         let salt_pointer = Pointer::new_with_offset(
             context,
             self.address_space,
@@ -157,7 +157,7 @@ where
             salt_offset,
             context.field_const((era_compiler_common::BYTE_LENGTH_FIELD * 2) as u64),
             "deployer_call_arguments_offset_offset",
-        );
+        )?;
         let arguments_offset_pointer = Pointer::new_with_offset(
             context,
             self.address_space,
@@ -178,7 +178,7 @@ where
             arguments_offset_offset,
             context.field_const(era_compiler_common::BYTE_LENGTH_FIELD as u64),
             "deployer_call_arguments_length_offset",
-        );
+        )?;
         let arguments_length_pointer = Pointer::new_with_offset(
             context,
             self.address_space,
@@ -190,7 +190,7 @@ where
             input_length,
             context.field_const(crate::eravm::DEPLOYER_CALL_HEADER_SIZE as u64),
             "deployer_call_arguments_length",
-        );
+        )?;
         context.build_store(arguments_length_pointer, arguments_length_value);
 
         let result_pointer =
@@ -214,7 +214,7 @@ where
             value,
             context.field_const(0),
             "deployer_call_is_value_zero",
-        );
+        )?;
         context.build_conditional_branch(is_value_zero, value_zero_block, value_non_zero_block);
 
         context.set_basic_block(value_zero_block);

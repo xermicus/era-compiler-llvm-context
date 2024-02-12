@@ -168,18 +168,18 @@ where
         active_pointer.into_pointer_value(),
         context.field_type(),
         "active_pointer_value",
-    );
+    )?;
     let active_pointer_value_shifted = context.builder().build_right_shift(
         active_pointer_value,
         context.field_const((era_compiler_common::BIT_LENGTH_X32 * 3) as u64),
         false,
         "active_pointer_value_shifted",
-    );
+    )?;
     let active_pointer_length = context.builder().build_and(
         active_pointer_value_shifted,
         context.field_const(u32::MAX as u64),
         "active_pointer_length",
-    );
+    )?;
     Ok(active_pointer_length.as_basic_value_enum())
 }
 

@@ -20,7 +20,7 @@ where
 {
     Ok(context
         .builder()
-        .build_int_add(operand_1, operand_2, "addition_result")
+        .build_int_add(operand_1, operand_2, "addition_result")?
         .as_basic_value_enum())
 }
 
@@ -37,7 +37,7 @@ where
 {
     Ok(context
         .builder()
-        .build_int_sub(operand_1, operand_2, "subtraction_result")
+        .build_int_sub(operand_1, operand_2, "subtraction_result")?
         .as_basic_value_enum())
 }
 
@@ -54,7 +54,7 @@ where
 {
     Ok(context
         .builder()
-        .build_int_mul(operand_1, operand_2, "multiplication_result")
+        .build_int_mul(operand_1, operand_2, "multiplication_result")?
         .as_basic_value_enum())
 }
 

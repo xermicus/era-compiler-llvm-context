@@ -251,7 +251,7 @@ where
                     pointer.into_pointer_value(),
                     context.field_type(),
                     "calldata_abi_integer",
-                );
+                )?;
                 return Ok(value.as_basic_value_enum());
             }
             Some(era_compiler_common::ERAVM_ADDRESS_GET_GLOBAL_CALL_FLAGS) => {
@@ -275,7 +275,7 @@ where
                     pointer.into_pointer_value(),
                     context.field_type(),
                     "return_data_abi_integer",
-                );
+                )?;
                 return Ok(value.as_basic_value_enum());
             }
             Some(era_compiler_common::ERAVM_ADDRESS_EVENT_INITIALIZE) => {
@@ -519,7 +519,7 @@ where
             context.field_const(zkevm_opcode_defs::ADDRESS_IDENTITY.into()),
             identity_block,
         )],
-    );
+    )?;
 
     {
         context.set_basic_block(identity_block);
@@ -664,7 +664,7 @@ where
         value,
         context.field_const(0),
         "contract_call_is_value_zero",
-    );
+    )?;
     context.build_conditional_branch(is_value_zero, value_zero_block, value_non_zero_block);
 
     context.set_basic_block(value_non_zero_block);

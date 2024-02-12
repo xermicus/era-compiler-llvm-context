@@ -24,7 +24,7 @@ where
         offset,
         context.byte_type().ptr_type(AddressSpace::Heap.into()),
         "sha3_offset_pointer",
-    );
+    )?;
 
     Ok(context
         .build_invoke(

@@ -212,7 +212,7 @@ where
             result_status_code_boolean.into_int_value(),
             context.field_type(),
             "contract_call_external_result_status_code",
-        );
+        )?;
         context.build_store(status_code_result_pointer, result_status_code);
 
         let source = result_abi_data_casted;

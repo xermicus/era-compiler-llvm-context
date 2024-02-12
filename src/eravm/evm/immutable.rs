@@ -30,7 +30,7 @@ where
                 index,
                 context.field_const(2),
                 "immutable_load_index_double",
-            );
+            )?;
             let offset_absolute = context.builder().build_int_add(
                 index_double,
                 context.field_const(
@@ -38,7 +38,7 @@ where
                         + (3 * era_compiler_common::BYTE_LENGTH_FIELD) as u64,
                 ),
                 "immutable_offset_absolute",
-            );
+            )?;
             let immutable_pointer = Pointer::new_with_offset(
                 context,
                 AddressSpace::HeapAuxiliary,
@@ -80,7 +80,7 @@ where
                 index,
                 context.field_const(2),
                 "immutable_load_index_double",
-            );
+            )?;
             let index_offset_absolute = context.builder().build_int_add(
                 index_double,
                 context.field_const(
@@ -88,7 +88,7 @@ where
                         + (2 * era_compiler_common::BYTE_LENGTH_FIELD) as u64,
                 ),
                 "index_offset_absolute",
-            );
+            )?;
             let index_offset_pointer = Pointer::new_with_offset(
                 context,
                 AddressSpace::HeapAuxiliary,
@@ -102,7 +102,7 @@ where
                 index_offset_absolute,
                 context.field_const(era_compiler_common::BYTE_LENGTH_FIELD as u64),
                 "value_offset_absolute",
-            );
+            )?;
             let value_offset_pointer = Pointer::new_with_offset(
                 context,
                 AddressSpace::HeapAuxiliary,

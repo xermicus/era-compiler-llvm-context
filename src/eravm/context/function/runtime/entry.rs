@@ -197,13 +197,13 @@ where
             call_flags.into_int_value(),
             context.field_const(1),
             "is_deploy_code_call_flag_truncated",
-        );
+        )?;
         let is_deploy_code_call_flag = context.builder().build_int_compare(
             inkwell::IntPredicate::EQ,
             is_deploy_call_flag_truncated,
             context.field_const(1),
             "is_deploy_code_call_flag",
-        );
+        )?;
         context.build_conditional_branch(
             is_deploy_code_call_flag,
             deploy_code_call_block,

@@ -32,7 +32,7 @@ where
         value,
         max_value,
         format!("{name}_is_in_bounds").as_str(),
-    );
+    )?;
     context.build_conditional_branch(is_in_bounds, in_bounds_block, join_block);
 
     context.set_basic_block(in_bounds_block);
@@ -140,37 +140,37 @@ where
         input_offset,
         context.field_const((era_compiler_common::BIT_LENGTH_X32 * 2) as u64),
         "abi_data_input_offset_shifted",
-    );
+    )?;
     let input_length_shifted = context.builder().build_left_shift(
         input_length,
         context.field_const((era_compiler_common::BIT_LENGTH_X32 * 3) as u64),
         "abi_data_input_length_shifted",
-    );
+    )?;
     let gas_shifted = context.builder().build_left_shift(
         gas,
         context.field_const((era_compiler_common::BIT_LENGTH_X32 * 6) as u64),
         "abi_data_gas_shifted",
-    );
+    )?;
 
     let mut abi_data = context.builder().build_int_add(
         input_offset_shifted,
         input_length_shifted,
         "abi_data_offset_and_length",
-    );
+    )?;
     abi_data = context
         .builder()
-        .build_int_add(abi_data, gas_shifted, "abi_data_add_gas");
+        .build_int_add(abi_data, gas_shifted, "abi_data_add_gas")?;
     if let AddressSpace::HeapAuxiliary = address_space {
         let auxiliary_heap_marker_shifted = context.builder().build_left_shift(
             context.field_const(zkevm_opcode_defs::FarCallForwardPageType::UseAuxHeap as u64),
             context.field_const((era_compiler_common::BIT_LENGTH_X32 * 7) as u64),
             "abi_data_auxiliary_heap_marker_shifted",
-        );
+        )?;
         abi_data = context.builder().build_int_add(
             abi_data,
             auxiliary_heap_marker_shifted,
             "abi_data_add_heap_auxiliary_marker",
-        );
+        )?;
     }
     if is_system_call {
         let auxiliary_heap_marker_shifted = context.builder().build_left_shift(
@@ -180,12 +180,12 @@ where
                     + (era_compiler_common::BIT_LENGTH_BYTE * 3)) as u64,
             ),
             "abi_data_system_call_marker_shifted",
-        );
+        )?;
         abi_data = context.builder().build_int_add(
             abi_data,
             auxiliary_heap_marker_shifted,
             "abi_data_add_system_call_marker",
-        );
+        )?;
     }
 
     Ok(abi_data.as_basic_value_enum())
